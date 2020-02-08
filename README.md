@@ -26,6 +26,9 @@ This version of Stopgo has been re-written in Java.
 If you're learning to code, you can help us improve StopGo.
 
 To contribute code, download the source from this repository.
+
+Run the ``env.java`` script to configure the classpath, or configure it manually in your IDE.
+
 Read through it carefully to understand how the application works.
 Once you understand which class does what, and what each method provides, start making whatever improvements you feel are needed.
 When you've finished, submit a patch or merge request.
