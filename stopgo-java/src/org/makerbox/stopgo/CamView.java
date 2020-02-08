@@ -9,8 +9,12 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Arrays;
+import java.util.ArrayList;
+
 import javax.swing.JFrame;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -196,7 +200,15 @@ public void actionPerformed(ActionEvent ae) {
 		}
     } else if (action.equals("New") || action.equals("Open")) {
         this.dir_images = CreateProject.main("Open");
-}
+        // get image numbers
+        File[] files = this.dir_images.listFiles();
+        Arrays.sort(files);
+        File lastfile = files[files.length-1];
+        String largestnum = lastfile.toString().replaceAll("[^0-9]", "");
+        System.out.println(largestnum);
+        counter = Integer.parseInt(largestnum)+1;
+        //counter = Arrays.toString(files[files.length-1]).replaceAll("[^0-9]", ""));
+    }
 }
 
 @Override
