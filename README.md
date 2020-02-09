@@ -25,15 +25,19 @@ StopGo version 1 was written in Python.
 This version of Stopgo has been re-written in Java.
 If you're learning to code, you can help us improve StopGo.
 
-To contribute code, download the source from this repository.
+To contribute code, download the source by cloning this Git repository.
+The Git repository is an [Eclipse](http://eclipse.org) workspace plus configuration for [Netbeans](http://netbeans.apache.org/) for development.
+You don't have to use Eclipse or Netbeans for development, but it's strongly encouraged (like StopGo itself, they're both free and open source and run on any platform).
 
-Run the ``env.java`` script to configure the classpath, or configure it manually in your IDE.
+Run the ``env.java`` script to configure the classpath, or configure it manually in your IDE:
 
-Read through it carefully to understand how the application works.
+```
+java -jar env.java
+```
+
+Read through the project code carefully to understand how StopGo works.
 Once you understand which class does what, and what each method provides, start making whatever improvements you feel are needed.
-When you've finished, submit a patch or merge request.
-
-We recommend either [Eclipse](http://eclipse.org) or [Netbeans](http://netbeans.apache.org/) for development.
+When you've finished, submit a patch or merge request through Git or by email.
 
 ## Bugs
 
