@@ -32,7 +32,7 @@ You don't have to use Eclipse or Netbeans for development, but it's strongly enc
 Run the ``env.java`` script to configure the classpath, or configure it manually in your IDE:
 
 ```
-java -jar env.java
+java ./env.java stopgo-java/dot-classpath
 ```
 
 Read through the project code carefully to understand how StopGo works.
