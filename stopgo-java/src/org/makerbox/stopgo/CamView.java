@@ -24,11 +24,17 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamDiscoveryEvent;
 import com.github.sarxos.webcam.WebcamDiscoveryListener;
 import com.github.sarxos.webcam.WebcamEvent;
+import com.github.sarxos.webcam.WebcamImageTransformer;
 import com.github.sarxos.webcam.WebcamListener;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamPicker;
 import com.github.sarxos.webcam.WebcamResolution;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import javax.swing.JButton;
+import javax.swing.SwingUtilities;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -40,10 +46,11 @@ import javax.swing.JMenuItem;
 
 public class CamView extends JFrame implements Runnable, WebcamListener, 
     WindowListener, UncaughtExceptionHandler, ItemListener, 
-    WebcamDiscoveryListener, ActionListener {
+    WebcamDiscoveryListener, ActionListener, WebcamImageTransformer {
 
     private int counter = 0;
     private static final long serialVersionUID = 1L;
+    private static BufferedImage onion = null;
     private Webcam webcam = null;
     private WebcamPanel panel = null;
     private WebcamPicker picker = null;
@@ -100,6 +107,7 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         webcam.addWebcamListener(CamView.this);
 
         panel = new WebcamPanel(webcam, false);
+        webcam.setImageTransformer(this);
         panel.setFPSDisplayed(true);
 
         add(picker, BorderLayout.NORTH);
@@ -143,7 +151,6 @@ public void webcamDisposed(WebcamEvent we) {
 
 @Override
 public void webcamImageObtained(WebcamEvent we) {
-        // do nothing
 }
 
 @Override
@@ -191,13 +198,16 @@ public void actionPerformed(ActionEvent ae) {
     if (action.equals("Snap")) {
         System.out.println("Button pressed.");
         try {
+                onion = null;
         	String snapshot = String.format("%07d", counter) + ".png";
-			ImageIO.write(webcam.getImage(), "PNG", new File(this.dir_images + File.separator + snapshot));
-			counter++;
-		} catch (IOException e) {
-			System.out.println("You must create a project first.");
-			e.printStackTrace();
-		}
+		ImageIO.write(webcam.getImage(), "PNG", 
+                        new File(this.dir_images + File.separator + snapshot));
+		counter++;
+                onion = webcam.getImage();
+            } catch (IOException e) {
+		System.out.println("You must create a project first.");
+		e.printStackTrace();
+            }
     } else if (action.equals("New") || action.equals("Open")) {
         this.dir_images = CreateProject.main("Open");
         // get image numbers
@@ -209,6 +219,23 @@ public void actionPerformed(ActionEvent ae) {
         counter = Integer.parseInt(largestnum)+1;
         //counter = Arrays.toString(files[files.length-1]).replaceAll("[^0-9]", ""));
     }
+}
+
+@Override
+public BufferedImage transform(BufferedImage image) {
+	int w = image.getWidth();
+	int h = image.getHeight();
+	BufferedImage modified = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+	Graphics2D g2d = modified.createGraphics();
+	g2d.drawImage(image, null, 0, 0);
+        
+	// TODO make alpha adjustable by user
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
+        g2d.drawImage(onion, null, 0, 0);
+	g2d.dispose();
+
+	modified.flush();
+	return modified;
 }
 
 @Override
