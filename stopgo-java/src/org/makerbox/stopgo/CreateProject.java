@@ -51,10 +51,12 @@ public class CreateProject {
 			} 
 
 			if (CreateProject.dir_project.mkdirs()) {
+                                System.out.println("Creating new project directory.");
 				CreateProject.dir_images = new File(CreateProject.dir_project + File.separator + "images");
 				CreateProject.dir_images.mkdirs();
 			} else if (CreateProject.dir_project.exists()) {
                                 CreateProject.dir_images = new File(CreateProject.dir_project + File.separator + "images");
+                                CreateProject.dir_images.mkdirs();
                                 System.out.println(CreateProject.dir_project + " exists. Setting image dir to " + CreateProject.dir_images);
 			} else {
 			    System.out.println("Something went wrong.");
