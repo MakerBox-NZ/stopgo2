@@ -209,9 +209,10 @@ public void actionPerformed(ActionEvent ae) {
 		e.printStackTrace();
             }
     } else if (action.equals("New") || action.equals("Open")) {
+        counter=0;
         this.dir_images = CreateProject.main("Open");
         // get image numbers
-        File[] files = this.dir_images.listFiles();
+        File[] files = this.dir_images.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
         Arrays.sort(files);
         File lastfile = files[files.length-1];
         String largestnum = lastfile.toString().replaceAll("[^0-9]", "");
