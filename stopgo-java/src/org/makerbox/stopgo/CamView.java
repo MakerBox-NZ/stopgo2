@@ -210,13 +210,12 @@ public void actionPerformed(ActionEvent ae) {
             }
     } else if (action.equals("New") || action.equals("Open")) {
         counter=0;
-        this.dir_images = CreateProject.main("Open");
+        this.dir_images = CreateProject.main(action);
         // get image numbers
         File[] files = this.dir_images.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
         Arrays.sort(files);
         File lastfile = files[files.length-1];
-        String largestnum = lastfile.toString().replaceAll("[^0-9]", "");
-        System.out.println(largestnum);
+        String largestnum = lastfile.getName().replaceAll("[^0-9]", "");
         counter = Integer.parseInt(largestnum)+1;
         //counter = Arrays.toString(files[files.length-1]).replaceAll("[^0-9]", ""));
     }
