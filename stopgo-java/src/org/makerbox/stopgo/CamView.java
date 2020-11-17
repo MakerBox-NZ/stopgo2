@@ -1,7 +1,6 @@
 package org.makerbox.stopgo;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -9,16 +8,12 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Arrays;
-import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.imageio.ImageIO;
-import javax.swing.JButton;
-import javax.swing.SwingUtilities;
 
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamDiscoveryEvent;
@@ -31,6 +26,8 @@ import com.github.sarxos.webcam.WebcamPicker;
 import com.github.sarxos.webcam.WebcamResolution;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.JButton;
@@ -54,13 +51,20 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
     private Webcam webcam = null;
     private WebcamPanel panel = null;
     private WebcamPicker picker = null;
+    private Timeline timeline = null;
     private File dir_images;
 
     @Override
     public void run() {
+        GridBagConstraints gbc = new GridBagConstraints();  
+    	setTitle("Stopgo");
+        GridBagLayout layout = new GridBagLayout();  
+        setLayout(layout);  
+    	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gbc.fill = GridBagConstraints.BOTH;
+        
         JMenuBar menu_main = new JMenuBar();
         //ImageIcon exitIcon = new ImageIcon("src/resources/exit.png");
-
         JMenu menu_main_file = new JMenu("File");
         menu_main_file.setMnemonic(KeyEvent.VK_F);
         // New
@@ -83,37 +87,48 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         menu_main.add(menu_main_file);
         setJMenuBar(menu_main);
     	Webcam.addDiscoveryListener(this);
-
-    	setTitle("Stopgo");
-    	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-
         addWindowListener(this);
 
         picker = new WebcamPicker();
         picker.addItemListener(this);
-
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.gridy = 0;
+        add(picker, gbc);
         webcam = picker.getSelectedWebcam();
+        webcam.setViewSize(WebcamResolution.VGA.getSize());
+        webcam.addWebcamListener(CamView.this);
+
         JButton btn_shutter = new JButton("snap");
+        gbc.gridx = 2;
+        gbc.gridwidth = 1;
+        gbc.gridy = 0;
+        add(btn_shutter, gbc);
         btn_shutter.setText("Snap");
         btn_shutter.addActionListener(this);
-            
+        
+        //TODO: make this nicer
         if (webcam == null) {
                 System.out.println("No webcams found...");
                 System.exit(1);
         }
 
-        webcam.setViewSize(WebcamResolution.VGA.getSize());
-        webcam.addWebcamListener(CamView.this);
-
         panel = new WebcamPanel(webcam, false);
         webcam.setImageTransformer(this);
         panel.setFPSDisplayed(true);
+        gbc.gridx = 0;
+        gbc.gridwidth = 3;
+        gbc.gridheight = 1;
+        gbc.gridy = 1;
+        add(panel, gbc);
 
-        add(picker, BorderLayout.NORTH);
-        add(panel, BorderLayout.CENTER);
-        add(btn_shutter, BorderLayout.SOUTH);
-
+        timeline = new Timeline();
+        gbc.gridx = 0;
+        gbc.gridwidth = 3;
+        gbc.gridheight = 2;
+        gbc.gridy = 2;
+        add(timeline, gbc);
+        
         pack();
         setVisible(true);
             
