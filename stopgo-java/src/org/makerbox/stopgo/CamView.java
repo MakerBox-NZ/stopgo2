@@ -25,6 +25,7 @@ import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamPicker;
 import com.github.sarxos.webcam.WebcamResolution;
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -93,7 +94,7 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         picker.addItemListener(this);
         gbc.gridx = 0;
         gbc.gridwidth = 2;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         add(picker, gbc);
         webcam = picker.getSelectedWebcam();
         webcam.setViewSize(WebcamResolution.VGA.getSize());
@@ -102,7 +103,7 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         JButton btn_shutter = new JButton("snap");
         gbc.gridx = 2;
         gbc.gridwidth = 1;
-        gbc.gridy = 0;
+        gbc.gridy = 1;
         add(btn_shutter, gbc);
         btn_shutter.setText("Snap");
         btn_shutter.addActionListener(this);
@@ -119,10 +120,13 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         gbc.gridx = 0;
         gbc.gridwidth = 3;
         gbc.gridheight = 1;
-        gbc.gridy = 1;
+        gbc.gridy = 0;
         add(panel, gbc);
 
         timeline = new Timeline();
+        //TODO add a preference or dropdown box for color choice
+        timeline.setColor(timeline, Color.cyan);
+                
         gbc.gridx = 0;
         gbc.gridwidth = 3;
         gbc.gridheight = 2;
@@ -223,15 +227,20 @@ public void actionPerformed(ActionEvent ae) {
 		System.out.println("You must create a project first.");
 		e.printStackTrace();
             }
-    } else if (action.equals("New") || action.equals("Open")) {
+    } else if (action.equals("New")) {
+        this.dir_images = CreateProject.main(action);
+    } else if (action.equals("Open")) {
         counter=0;
         this.dir_images = CreateProject.main(action);
+        // TODO do not restrict to only PNG
         // get image numbers
         File[] files = this.dir_images.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
         Arrays.sort(files);
         File lastfile = files[files.length-1];
         String largestnum = lastfile.getName().replaceAll("[^0-9]", "");
         counter = Integer.parseInt(largestnum)+1;
+        timeline.pop(timeline, dir_images);
+
         //counter = Arrays.toString(files[files.length-1]).replaceAll("[^0-9]", ""));
     }
 }
@@ -282,7 +291,7 @@ public void run() {
 	panel.start();
 	}
 };
-	t.setName("example-stopper");
+	t.setName("stopper");
 	t.setDaemon(true);
 	t.setUncaughtExceptionHandler(this);
 	t.start();
