@@ -16,20 +16,37 @@
  */
 package org.makerbox.stopgo;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.event.ActionListener;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.border.Border;
 
 /**
  * @author Seth Kenlon
  */
 
-public class Picture extends JLabel { //implements ActionListener {
+public class Picture extends JLabel {
     
-    public Picture(String img) {
-        System.out.println("Picture created [DEBUG]");
-        ImageIcon imageIcon = new ImageIcon(new ImageIcon(img).getImage().getScaledInstance(180, 128, Image.SCALE_DEFAULT));
+    /**
+     * Creates thumbnail image to represent a film frame in the timeline.
+     * @param img: the image to turn into a film frame
+     * @param w: desired width
+     * @param h: desired height
+     */
+    public Picture(String img, int w, int h) {
+        Border outline = BorderFactory.createLineBorder(Color.black);
+        ImageIcon imageIcon = new ImageIcon(new ImageIcon(img).getImage().getScaledInstance(w, h, Image.SCALE_DEFAULT));
         this.setIcon(imageIcon);
-    }
+        this.setBackground(Color.black);
+        this.setForeground(Color.white);
+        this.setBorder(outline);
+        this.setHorizontalTextPosition(JLabel.CENTER);
+        //this.setVerticalTextPosition(JLabel.BOTTOM);
+        this.setText(img.substring(img.lastIndexOf(".") - 7));
+      }
 }

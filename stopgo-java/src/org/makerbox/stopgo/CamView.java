@@ -26,9 +26,9 @@ import com.github.sarxos.webcam.WebcamPicker;
 import com.github.sarxos.webcam.WebcamResolution;
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.JButton;
@@ -36,6 +36,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SpringLayout;
 
 /**
  * @author Seth Kenlon
@@ -49,20 +52,17 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
     private int counter = 0;
     private static final long serialVersionUID = 1L;
     private static BufferedImage onion = null;
-    private Webcam webcam = null;
-    private WebcamPanel panel = null;
+    private Webcam cam = null;
+    private WebcamPanel camview = null;
     private WebcamPicker picker = null;
     private Timeline timeline = null;
     private File dir_images;
 
     @Override
     public void run() {
-        GridBagConstraints gbc = new GridBagConstraints();  
-    	setTitle("Stopgo");
-        GridBagLayout layout = new GridBagLayout();  
-        setLayout(layout);  
-    	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        gbc.fill = GridBagConstraints.BOTH;
+    	this.setTitle("Stopgo");
+    	this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setPreferredSize(new Dimension(960,800));
         
         JMenuBar menu_main = new JMenuBar();
         //ImageIcon exitIcon = new ImageIcon("src/resources/exit.png");
@@ -89,126 +89,69 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         setJMenuBar(menu_main);
     	Webcam.addDiscoveryListener(this);
         addWindowListener(this);
-
+        
+        Container contentPane = this.getContentPane();  
+        SpringLayout spring = new SpringLayout();  
+        contentPane.setLayout(spring);
+        
         picker = new WebcamPicker();
         picker.addItemListener(this);
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        gbc.gridy = 1;
-        add(picker, gbc);
-        webcam = picker.getSelectedWebcam();
-        webcam.setViewSize(WebcamResolution.VGA.getSize());
-        webcam.addWebcamListener(CamView.this);
+        contentPane.add(picker);
 
         JButton btn_shutter = new JButton("snap");
-        gbc.gridx = 2;
-        gbc.gridwidth = 1;
-        gbc.gridy = 1;
-        add(btn_shutter, gbc);
         btn_shutter.setText("Snap");
         btn_shutter.addActionListener(this);
+        contentPane.add(btn_shutter);
+
+        cam = picker.getSelectedWebcam();
+        cam.setViewSize(WebcamResolution.VGA.getSize());
+        cam.addWebcamListener(CamView.this);
         
-        //TODO: make this nicer
-        if (webcam == null) {
-                System.out.println("No webcams found...");
-                System.exit(1);
-        }
-
-        panel = new WebcamPanel(webcam, false);
-        webcam.setImageTransformer(this);
-        panel.setFPSDisplayed(true);
-        gbc.gridx = 0;
-        gbc.gridwidth = 3;
-        gbc.gridheight = 1;
-        gbc.gridy = 0;
-        add(panel, gbc);
-
+        camview = new WebcamPanel(cam, false);
+        cam.setImageTransformer(this);
+        camview.setFPSDisplayed(true);
+        contentPane.add(camview);
+        
         timeline = new Timeline();
         //TODO add a preference or dropdown box for color choice
         timeline.setColor(timeline, Color.cyan);
-                
-        gbc.gridx = 0;
-        gbc.gridwidth = 3;
-        gbc.gridheight = 2;
-        gbc.gridy = 2;
-        add(timeline, gbc);
+        timeline.setPreferredSize(new Dimension(1920,180));
+        JScrollPane scroller = new JScrollPane(timeline);
+        contentPane.add(scroller);
+        scroller.setMinimumSize(new Dimension(256,256));
+        scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         
+        spring.putConstraint(SpringLayout.HORIZONTAL_CENTER, camview, 0, SpringLayout.HORIZONTAL_CENTER, contentPane); 
+        spring.putConstraint(SpringLayout.WEST, picker, 0, SpringLayout.WEST, camview); 
+        spring.putConstraint(SpringLayout.WEST, btn_shutter, 50, SpringLayout.EAST, picker); 
+        spring.putConstraint(SpringLayout.EAST, btn_shutter, 0, SpringLayout.EAST, camview);
+        spring.putConstraint(SpringLayout.NORTH, picker, 0, SpringLayout.SOUTH, camview); 
+        spring.putConstraint(SpringLayout.NORTH, btn_shutter, 0, SpringLayout.SOUTH, camview); 
+        spring.putConstraint(SpringLayout.SOUTH, scroller, 0, SpringLayout.SOUTH, contentPane); 
+        spring.putConstraint(SpringLayout.EAST, scroller, 0, SpringLayout.EAST, contentPane); 
+        spring.putConstraint(SpringLayout.WEST, scroller, 0, SpringLayout.WEST, contentPane); 
+       
         pack();
         setVisible(true);
-            
+        
+        //TODO: make this a popup, and not exit
+        if (cam == null) {
+                System.out.println("No webcams found...");
+                System.exit(1);
+        }
+        
         Thread t = new Thread() {
 
 @Override
 public void run() {
-	panel.start();
+	camview.start();
                 }
 	};
 	t.setName("Stopgo");
 	t.setDaemon(true);
 	t.setUncaughtExceptionHandler(this);
 	t.start();
-}
-
-public static void main(String[] args) {
-        SwingUtilities.invokeLater(new CamView());   
-}
-
-@Override
-public void webcamOpen(WebcamEvent we) {
-        System.out.println("webcam open");
-}
-
-@Override
-public void webcamClosed(WebcamEvent we) {
-        System.out.println("webcam closed");
-}
-
-@Override
-public void webcamDisposed(WebcamEvent we) {
-        System.out.println("webcam disposed");
-}
-
-@Override
-public void webcamImageObtained(WebcamEvent we) {
-}
-
-@Override
-public void windowActivated(WindowEvent e) {
-}
-
-@Override
-public void windowClosed(WindowEvent e) {
-        webcam.close();
-}
-
-@Override
-public void windowClosing(WindowEvent e) {
-}
-
-@Override
-public void windowOpened(WindowEvent e) {
-}
-
-@Override
-public void windowDeactivated(WindowEvent e) {
-}
-
-@Override
-public void windowDeiconified(WindowEvent e) {
-        System.out.println("webcam viewer resumed");
-        panel.resume();
-}
-
-@Override
-public void windowIconified(WindowEvent e) {
-        System.out.println("webcam viewer paused");
-        panel.pause();
-}
-
-@Override
-public void uncaughtException(Thread t, Throwable e) {
-        System.err.println(String.format("Exception in thread %s", t.getName()));
-        e.printStackTrace();
 }
 
 @Override
@@ -219,11 +162,12 @@ public void actionPerformed(ActionEvent ae) {
         try {
                 onion = null;
         	String snapshot = String.format("%07d", counter) + ".png";
-		ImageIO.write(webcam.getImage(), "PNG", 
+		ImageIO.write(cam.getImage(), "PNG", 
                         new File(this.dir_images + File.separator + snapshot));
 		counter++;
-                onion = webcam.getImage();
+                onion = cam.getImage();
             } catch (IOException e) {
+                //TODO make this a popup window
 		System.out.println("You must create a project first.");
 		e.printStackTrace();
             }
@@ -234,15 +178,16 @@ public void actionPerformed(ActionEvent ae) {
         this.dir_images = CreateProject.main(action);
         // TODO do not restrict to only PNG
         // get image numbers
-        File[] files = this.dir_images.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
-        Arrays.sort(files);
-        File lastfile = files[files.length-1];
-        String largestnum = lastfile.getName().replaceAll("[^0-9]", "");
-        counter = Integer.parseInt(largestnum)+1;
         timeline.pop(timeline, dir_images);
-
-        //counter = Arrays.toString(files[files.length-1]).replaceAll("[^0-9]", ""));
+        timeline.revalidate(); timeline.repaint();
+        counter = timeline.getResume(dir_images);
     }
+}
+
+@Override
+public void uncaughtException(Thread t, Throwable e) {
+        System.err.println(String.format("Exception in thread %s", t.getName()));
+        e.printStackTrace();
 }
 
 @Override
@@ -264,38 +209,94 @@ public BufferedImage transform(BufferedImage image) {
 
 @Override
 public void itemStateChanged(ItemEvent e) {
-	if (e.getItem() != webcam) {
-	if (webcam != null) {
+	if (e.getItem() != cam) {
+	if (cam != null) {
 
-	panel.stop();
-	remove(panel);
+	camview.stop();
+	remove(camview);
 
-	webcam.removeWebcamListener(this);
-	webcam.close();
+	cam.removeWebcamListener(this);
+	cam.close();
 
-	webcam = (Webcam) e.getItem();
-	webcam.setViewSize(WebcamResolution.VGA.getSize());
-	webcam.addWebcamListener(this);
-	System.out.println("selected " + webcam.getName());
+	cam = (Webcam) e.getItem();
+	cam.setViewSize(WebcamResolution.VGA.getSize());
+	cam.addWebcamListener(this);
+	System.out.println("selected " + cam.getName());
 
-	panel = new WebcamPanel(webcam, false);
-	panel.setFPSDisplayed(true);
+	camview = new WebcamPanel(cam, false);
+	camview.setFPSDisplayed(true);
 
-	add(panel, BorderLayout.CENTER);
+	add(camview, BorderLayout.CENTER);
 	pack();
 
 	Thread t = new Thread() {
 
 @Override
 public void run() {
-	panel.start();
+	camview.start();
 	}
-};
+                };
 	t.setName("stopper");
 	t.setDaemon(true);
 	t.setUncaughtExceptionHandler(this);
 	t.start();
 	}}
+}
+
+public static void main(String[] args) {
+        SwingUtilities.invokeLater(new CamView());   
+}
+
+@Override
+public void webcamOpen(WebcamEvent we) {
+        System.out.println("camera open");
+}
+
+@Override
+public void webcamClosed(WebcamEvent we) {
+        System.out.println("camera closed");
+}
+
+@Override
+public void webcamDisposed(WebcamEvent we) {
+        System.out.println("camera disposed");
+}
+
+@Override
+public void webcamImageObtained(WebcamEvent we) {
+}
+
+@Override
+public void windowActivated(WindowEvent e) {
+}
+
+@Override
+public void windowClosed(WindowEvent e) {
+        cam.close();
+}
+
+@Override
+public void windowClosing(WindowEvent e) {
+}
+
+@Override
+public void windowOpened(WindowEvent e) {
+}
+
+@Override
+public void windowDeactivated(WindowEvent e) {
+}
+
+@Override
+public void windowDeiconified(WindowEvent e) {
+        System.out.println("webcam viewer resumed");
+        camview.resume();
+}
+
+@Override
+public void windowIconified(WindowEvent e) {
+        System.out.println("camera viewer paused");
+        camview.pause();
 }
 
 @Override

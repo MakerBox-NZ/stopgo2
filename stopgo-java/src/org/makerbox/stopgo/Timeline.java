@@ -16,34 +16,78 @@
 */
 package org.makerbox.stopgo;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Image;
-import javax.swing.ImageIcon;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.io.File;
+import java.util.Arrays;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.Border;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Establishes a timeline to display each picture in order.
+ * @author Seth Kenlon
+ */
 public class Timeline extends JPanel {
    
-   private final JPanel panel;
+    /**
+     * Constructor for timeline.
+     */
+    public Timeline() {
+        Logger logger = LoggerFactory.getLogger(Timeline.class);
+        BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
+        this.setLayout(layout);
+        this.setMinimumSize(new Dimension(256,256));
+    }
    
-   public Timeline() {
-        panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.setBackground(Color.cyan);
-        //panel.setPreferredSize(new Dimension(640, 300));
-        this.add(panel);
+    public static void pop(Timeline timeline, File dir_images) {
+        File[] files;
+        files = listFiles(dir_images);
+        if (files != null) {
+            for (File child : files) {
+                JLabel imglabel = new Picture(child.toString(), 180, 128);
+                //imglabel.setText(child.toString());
+                timeline.add(Box.createRigidArea(new Dimension(10, 0)));
+                timeline.add(imglabel);
+            }
+        } else {
+            System.out.println("No images found.");
+            System.out.println("Cannot open this directory as a Stopgo project.");
+        }
         
-//        JLabel imglabel = new JLabel();
-//        ImageIcon imageIcon = new ImageIcon(new ImageIcon("/tmp/test.jpg").getImage().getScaledInstance(180, 128, Image.SCALE_DEFAULT));
-//        imglabel.setIcon(imageIcon);
-        JLabel imglabel = new Picture("/tmp/test.jpg");
-        this.add(imglabel);
-        
-        this.setVisible(true);
-   }
-   
-   public static void main(String args[]) {
-       Timeline timeline = new Timeline();
-     }
+        timeline.revalidate();
+        timeline.repaint();
+    }
+
+    public static File[] listFiles(File dir_images) {
+        File[] files = dir_images.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
+        Arrays.sort(files);
+        return files;
+    }
+    
+    /**
+     * Get latest frame count.
+     * @param dir_images: project directory containing images
+     * @return largest_int: number assigned to latest image
+     */
+    public int getResume(File dir_images) {
+        File[] files;
+        files = listFiles(dir_images);
+        File lastfile = files[files.length-1];
+        String largestnum = lastfile.getName().replaceAll("[^0-9]", "");
+        int largest_int = Integer.parseInt(largestnum);
+        return largest_int;
+    }
+    
+    public static void setColor(Timeline timeline, Color c) {
+        timeline.setBackground(c);
+    }
+
    }
