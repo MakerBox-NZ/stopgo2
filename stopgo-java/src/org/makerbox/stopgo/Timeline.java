@@ -18,16 +18,12 @@ package org.makerbox.stopgo;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.io.File;
 import java.util.Arrays;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.border.Border;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author Seth Kenlon
  */
 public class Timeline extends JPanel {
-   
+
     /**
      * Constructor for timeline.
      */
@@ -53,7 +49,6 @@ public class Timeline extends JPanel {
         if (files != null) {
             for (File child : files) {
                 JLabel imglabel = new Picture(child.toString(), 180, 128);
-                //imglabel.setText(child.toString());
                 timeline.add(Box.createRigidArea(new Dimension(10, 0)));
                 timeline.add(imglabel);
             }
@@ -89,5 +84,4 @@ public class Timeline extends JPanel {
     public static void setColor(Timeline timeline, Color c) {
         timeline.setBackground(c);
     }
-
    }

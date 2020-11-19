@@ -57,7 +57,8 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
     private WebcamPicker picker = null;
     private Timeline timeline = null;
     private File dir_images;
-
+    private final Color makerboxblue = new Color(79,205,222);
+    
     @Override
     public void run() {
     	this.setTitle("Stopgo");
@@ -114,7 +115,7 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         
         timeline = new Timeline();
         //TODO add a preference or dropdown box for color choice
-        timeline.setColor(timeline, Color.cyan);
+        timeline.setColor(timeline, makerboxblue);
         timeline.setPreferredSize(new Dimension(1920,180));
         JScrollPane scroller = new JScrollPane(timeline);
         contentPane.add(scroller);
