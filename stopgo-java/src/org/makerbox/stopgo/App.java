@@ -10,7 +10,6 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.imageio.ImageIO;
@@ -30,6 +29,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
@@ -45,9 +45,9 @@ import javax.swing.SpringLayout;
  *
  */
 
-public class CamView extends JFrame implements Runnable, WebcamListener, 
+public class App extends JFrame implements Runnable, WebcamListener, 
     WindowListener, UncaughtExceptionHandler, ItemListener, 
-    WebcamDiscoveryListener, ActionListener, WebcamImageTransformer {
+    WebcamDiscoveryListener, ActionListener, WebcamImageTransformer, KeyListener {
 
     private int counter = 0;
     private static final long serialVersionUID = 1L;
@@ -72,7 +72,7 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         // New
         JMenuItem menu_mf_new = new JMenuItem("New");//, newIcon);
         menu_mf_new.setMnemonic(KeyEvent.VK_N);
-        menu_mf_new.addActionListener(this);//(event) -> CreateProject.main()
+        menu_mf_new.addActionListener(this);
         // Open
         JMenuItem menu_mf_open = new JMenuItem("Open");//, openIcon);
         menu_mf_open.setMnemonic(KeyEvent.VK_O);
@@ -87,6 +87,15 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         menu_main_file.add(menu_mf_open);
         menu_main_file.add(menu_mf_exit);
         menu_main.add(menu_main_file);
+
+        JMenu menu_main_edit = new JMenu("Edit");
+        menu_main_edit.setMnemonic(KeyEvent.VK_E);
+        JMenuItem menu_me_delete = new JMenuItem("Delete");
+        menu_me_delete.addActionListener(this);
+
+        menu_main_edit.add(menu_me_delete);
+        menu_main.add(menu_main_edit);
+        
         setJMenuBar(menu_main);
     	Webcam.addDiscoveryListener(this);
         addWindowListener(this);
@@ -102,11 +111,20 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         JButton btn_shutter = new JButton("snap");
         btn_shutter.setText("Snap");
         btn_shutter.addActionListener(this);
+        //btn_shutter.requestFocusInWindow();
+        //btn_shutter.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("released ENTER"), "released");
         contentPane.add(btn_shutter);
+
+        JButton btn_delete = new JButton("delete");
+        btn_delete.setText("Delete");
+        btn_delete.addActionListener(this);
+        //btn_shutter.requestFocusInWindow();
+        //btn_shutter.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("released ENTER"), "released");
+        contentPane.add(btn_delete);
 
         cam = picker.getSelectedWebcam();
         cam.setViewSize(WebcamResolution.VGA.getSize());
-        cam.addWebcamListener(CamView.this);
+        cam.addWebcamListener(App.this);
         
         camview = new WebcamPanel(cam, false);
         cam.setImageTransformer(this);
@@ -122,17 +140,24 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
         scroller.setMinimumSize(new Dimension(256,256));
         scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        
+
+        // <place the edge of...>, <component_0>, <with padding>, <...against the edge of...>, <component_1>   
         spring.putConstraint(SpringLayout.HORIZONTAL_CENTER, camview, 0, SpringLayout.HORIZONTAL_CENTER, contentPane); 
+        
         spring.putConstraint(SpringLayout.WEST, picker, 0, SpringLayout.WEST, camview); 
-        spring.putConstraint(SpringLayout.WEST, btn_shutter, 50, SpringLayout.EAST, picker); 
+        spring.putConstraint(SpringLayout.WEST, btn_delete, 10, SpringLayout.EAST, picker);
+        spring.putConstraint(SpringLayout.WEST, btn_shutter, 10, SpringLayout.EAST, btn_delete);
+
         spring.putConstraint(SpringLayout.EAST, btn_shutter, 0, SpringLayout.EAST, camview);
-        spring.putConstraint(SpringLayout.NORTH, picker, 0, SpringLayout.SOUTH, camview); 
-        spring.putConstraint(SpringLayout.NORTH, btn_shutter, 0, SpringLayout.SOUTH, camview); 
+        
+        spring.putConstraint(SpringLayout.NORTH, picker, 10, SpringLayout.SOUTH, camview);
+        spring.putConstraint(SpringLayout.NORTH, btn_delete, 10, SpringLayout.SOUTH, camview); 
+        spring.putConstraint(SpringLayout.NORTH, btn_shutter, 10, SpringLayout.SOUTH, camview); 
+        
         spring.putConstraint(SpringLayout.SOUTH, scroller, 0, SpringLayout.SOUTH, contentPane); 
         spring.putConstraint(SpringLayout.EAST, scroller, 0, SpringLayout.EAST, contentPane); 
         spring.putConstraint(SpringLayout.WEST, scroller, 0, SpringLayout.WEST, contentPane); 
-       
+
         pack();
         setVisible(true);
         
@@ -141,7 +166,7 @@ public class CamView extends JFrame implements Runnable, WebcamListener,
                 System.out.println("No webcams found...");
                 System.exit(1);
         }
-        
+
         Thread t = new Thread() {
 
 @Override
@@ -182,6 +207,8 @@ public void actionPerformed(ActionEvent ae) {
         timeline.pop(timeline, dir_images);
         timeline.revalidate(); timeline.repaint();
         counter = timeline.getResume(dir_images);
+    } else if (action.equals("Delete")) {
+        System.out.println("Delete menu selected");
     }
 }
 
@@ -245,7 +272,7 @@ public void run() {
 }
 
 public static void main(String[] args) {
-        SwingUtilities.invokeLater(new CamView());   
+        SwingUtilities.invokeLater(new App());   
 }
 
 @Override
@@ -309,8 +336,21 @@ public void webcamFound(WebcamDiscoveryEvent event) {
 
 @Override
 public void webcamGone(WebcamDiscoveryEvent event) {
-        if (picker != null) {
-                picker.removeItem(event.getWebcam());
-        }
+    if (picker != null) {
+        picker.removeItem(event.getWebcam());
+    }
 }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        System.out.println("i felt that");
+    }
 }
