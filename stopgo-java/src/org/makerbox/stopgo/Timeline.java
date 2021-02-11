@@ -27,6 +27,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import static org.makerbox.stopgo.CreateProject.dir_images;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,9 @@ import org.slf4j.LoggerFactory;
  * @author Seth Kenlon
  */
 public class Timeline extends JPanel implements MouseListener {
+    private static int wframe = 180;
+    private static int hframe = 128;
+    private static int timeline_min = 256;
     /**
      * Constructor for timeline.
      */
@@ -49,7 +53,7 @@ public class Timeline extends JPanel implements MouseListener {
     private void initUI() {
         BoxLayout layout = new BoxLayout(this, BoxLayout.X_AXIS);
         this.setLayout(layout);
-        this.setMinimumSize(new Dimension(256,256));
+        this.setMinimumSize(new Dimension(timeline_min,timeline_min));
         this.setFocusable(true);
     }
     
@@ -63,19 +67,30 @@ public class Timeline extends JPanel implements MouseListener {
         files = listFiles(dir_images);
         if (files != null) {
             for (File child : files) {
-                JLabel imglabel = new Picture(child.toString(), 180, 128);
+                JLabel imglabel = new Picture(child.toString(), wframe, hframe);
                 timeline.add(Box.createRigidArea(new Dimension(10, 0)));
                 timeline.add(imglabel);
             }
         } else {
+            // TODO make this a popup
             System.out.println("No images found.");
             System.out.println("Cannot open this directory as a Stopgo project.");
         }
-        
         timeline.revalidate();
         timeline.repaint();
     }
 
+    /**
+     * Add one frame (probably the one that just got snapped) to timeline.
+     * @param timeline: the active timeline (this)
+     * @param snapshot: new image to add to timeline (this)
+     */
+    public void appendFrame(Timeline timeline, String snapshot) {
+        JLabel imglabel = new Picture(dir_images + File.separator + snapshot, wframe, hframe);
+        timeline.add(Box.createRigidArea(new Dimension(10, 0)));
+        timeline.add(imglabel);
+    }
+    
     public static File[] listFiles(File dir_images) {
         File[] files = dir_images.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
         Arrays.sort(files);
@@ -95,7 +110,7 @@ public class Timeline extends JPanel implements MouseListener {
         int largest_int = Integer.parseInt(largestnum);
         return largest_int;
     }
-    
+   
     public static void setColor(Timeline timeline, Color c) {
         timeline.setBackground(c);
     }

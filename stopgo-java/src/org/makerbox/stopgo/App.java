@@ -190,15 +190,20 @@ public void run() {
 public void actionPerformed(ActionEvent ae) {
     String action = ae.getActionCommand();
     if (action.equals("Snap")) {
-        System.out.println("Button pressed.");
+        //System.out.println("Button pressed.");
         try {
+            counter++;
             onion = null;
         	String snapshot = String.format("%07d", counter) + ".png";
             ImageIO.write(cam.getImage(), "PNG", 
                         new File(this.dir_images + File.separator + snapshot));
-            counter++;
             onion = cam.getImage();
-            } catch (IOException e) {
+
+            timeline.appendFrame(timeline, snapshot);
+            timeline.revalidate(); timeline.repaint();
+
+            counter = timeline.getResume(dir_images);
+        } catch (IOException e) {
                 //TODO make this a popup window
 		System.out.println("You must create a project first.");
 		e.printStackTrace();
@@ -223,6 +228,10 @@ public void actionPerformed(ActionEvent ae) {
         } catch (IOException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
+        timeline.removeAll();
+        timeline.pop(timeline, dir_images);
+        timeline.revalidate(); timeline.repaint();
+        counter = timeline.getResume(dir_images);
     }
 }
 
@@ -366,9 +375,5 @@ public void webcamGone(WebcamDiscoveryEvent event) {
     @Override
     public void keyReleased(KeyEvent e) {
         System.out.println("i felt that");
-    }
-
-    private void moveToTrash(File fd) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
