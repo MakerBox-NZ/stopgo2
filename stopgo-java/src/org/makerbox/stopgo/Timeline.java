@@ -17,7 +17,6 @@
 package org.makerbox.stopgo;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Establishes a timeline to display each picture in order.
  * @author Seth Kenlon
  */
-public class Timeline extends JPanel implements MouseListener {
+public class Timeline extends JPanel implements MouseListener { //TODO get rid of MouseListener here
     private static int wframe = 180;
     private static int hframe = 128;
     private static int timeline_min = 256;
@@ -62,7 +61,7 @@ public class Timeline extends JPanel implements MouseListener {
        * @param timeline
        * @param dir_images 
        */  
-    public static void pop(Timeline timeline, File dir_images) {
+    public void pop(Timeline timeline, File dir_images) {
         File[] files;
         files = listFiles(dir_images);
         if (files != null) {
@@ -117,23 +116,18 @@ public class Timeline extends JPanel implements MouseListener {
     
     @Override
     public void mouseReleased(MouseEvent arg0) {
-        System.out.println("DEBUG Mouse event on Picture detected.");
-        for (Component jc : this.getComponents()) {
-            if ( jc instanceof Picture ) {
-                Picture i = (Picture) jc;
-                i.toggle();
-            }
-        }
+        throw new UnsupportedOperationException("Not supported yet.");
+
     }
        
     @Override
     public void mousePressed(MouseEvent arg0) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

@@ -22,6 +22,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -35,6 +41,7 @@ public class Picture extends JLabel implements MouseListener, ActionListener {
     private boolean isSelected;
     public static String selected = null;
     private final String filename;
+    private static ArrayList<File> selectedList = new ArrayList<File>();
     /**
      * Creates thumbnail image to represent a film frame in the timeline.
      * @param img: the image to turn into a film frame
@@ -66,8 +73,51 @@ public class Picture extends JLabel implements MouseListener, ActionListener {
     /** Handle the button click. */
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("ACTION: " + e.toString());
+        //System.out.println("ACTION: " + e.toString());
     }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        if (e.getSource() == this) {
+            handleClick(this.selected);
+        }
+    }
+
+    public void handleClick(String selected) {
+        this.isSelected = true;
+                   
+        if (this.isSelected) {
+            this.selected = filename;
+            File img = new File(this.selected);
+
+            if (selectedList.contains(img)) { 
+                selectedList.remove(img);
+                this.setForeground(Color.white);
+                this.isSelected = false;
+                this.setText(filename.substring(filename.lastIndexOf(".") - 7));
+            } else {
+                selectedList.add(img);
+                this.setForeground(Color.red);
+                this.setText("Selected");
+            }
+        this.repaint();
+        //System.out.println("DEBUG Array size = " + selectedList.size());
+        }
+    }
+    
+    public ArrayList getSelected() {
+        return selectedList;
+    }
+    
+    public static void trashSelected() throws IOException {
+        File trash = CreateProject.getTrash();
+        for (File f : selectedList) {
+            Files.move(Path.of(f.getAbsolutePath()), Path.of(trash.getAbsolutePath(), f.getName()), StandardCopyOption.REPLACE_EXISTING);
+        }
+        selectedList.clear();
+        //System.out.println("DEBUG Array size = " + selectedList.size());
+    }
+    
     @Override
     public void mousePressed(MouseEvent e) {
     }
@@ -77,39 +127,10 @@ public class Picture extends JLabel implements MouseListener, ActionListener {
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-        if (e.getSource() == this) {
-            this.isSelected = !this.isSelected;
-        }
-        
-        if (this.isSelected) {
-            this.selected = filename;
-            System.out.println("DEBUG selected" + this.selected);
-            this.setForeground(Color.red);
-            this.setText("Selected");
-            //this.requestFocus();
-            this.transferFocus();
-            this.repaint();
-        } else {
-            this.setForeground(Color.white);
-            this.setText(filename.substring(filename.lastIndexOf(".") - 7));
-            this.repaint();
-        }
-    }
-
-    @Override
     public void mouseEntered(MouseEvent e) {
     }
     
     @Override
     public void mouseExited(MouseEvent e) {
-    }
-    
-    public void toggle(){
-        System.out.println("message received");
-//        this.isSelected = false;
-//        this.setForeground(Color.white);
-//        this.setText(filename.substring(filename.lastIndexOf(".") - 7));
-//        this.repaint();
     }
 }

@@ -33,7 +33,6 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -224,14 +223,18 @@ public void actionPerformed(ActionEvent ae) {
         counter = timeline.getResume(dir_images);
     } else if (action.equals("Delete")) {
         counter=0;
-        System.out.println(Picture.selected + " delete request");
-        File fd = new File(Picture.selected);
-        File trash = CreateProject.getTrash();        
         try {
-            Files.move(Path.of(fd.getAbsolutePath()), Path.of(trash.getAbsolutePath(), fd.getName()), StandardCopyOption.REPLACE_EXISTING);
+            Picture.trashSelected();
         } catch (IOException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
+//        File fd = new File(Picture.selected);
+//        File trash = CreateProject.getTrash();        
+//        try {
+//            Files.move(Path.of(fd.getAbsolutePath()), Path.of(trash.getAbsolutePath(), fd.getName()), StandardCopyOption.REPLACE_EXISTING);
+//        } catch (IOException ex) {
+//            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         timeline.removeAll();
         timeline.pop(timeline, dir_images);
         timeline.revalidate(); timeline.repaint();
