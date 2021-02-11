@@ -7,8 +7,6 @@ import java.util.Date;
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CreateProject {
 
@@ -17,8 +15,6 @@ public class CreateProject {
     static int returnValue = 0;
        
 	public static File main(String msg_operator) {
-            Logger logger = LoggerFactory.getLogger(CreateProject.class);
-            
             JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
             jfc.setDialogTitle("Choose your Stopgo image directory");
 
@@ -29,10 +25,10 @@ public class CreateProject {
 
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                logger.info("LookandFeel set.");
+                //logger.info("LookandFeel set.");
             } catch(Exception ex) {
-                //ex.printStackTrace();
-                logger.warn("Failed to set look and feel.");
+                ex.printStackTrace();
+                //logger.warn("Failed to set look and feel.");
             }
 
             if (msg_operator.equals("Open")) {

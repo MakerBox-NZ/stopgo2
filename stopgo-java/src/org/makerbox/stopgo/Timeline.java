@@ -27,8 +27,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import static org.makerbox.stopgo.CreateProject.dir_images;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Establishes a timeline to display each picture in order.
@@ -42,7 +40,6 @@ public class Timeline extends JPanel implements MouseListener { //TODO get rid o
      * Constructor for timeline.
      */
     public Timeline() {
-        Logger logger = LoggerFactory.getLogger(Timeline.class);
         this.initUI();
     }
 
@@ -110,6 +107,8 @@ public class Timeline extends JPanel implements MouseListener { //TODO get rid o
         return largest_int;
     }
    
+    public int getFrameWidth() { return wframe; }
+    
     public static void setColor(Timeline timeline, Color c) {
         timeline.setBackground(c);
     }

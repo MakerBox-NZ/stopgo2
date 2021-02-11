@@ -31,9 +31,6 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -44,6 +41,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 
 /**
  * @author Seth Kenlon
@@ -57,6 +55,7 @@ public class App extends JFrame implements Runnable, WebcamListener,
     private int counter = 0;
     private static final long serialVersionUID = 1L;
     private static BufferedImage onion = null;
+    private JScrollPane scroller = null;
     private Webcam cam = null;
     private WebcamPanel camview = null;
     private WebcamPicker picker = null;
@@ -139,12 +138,13 @@ public class App extends JFrame implements Runnable, WebcamListener,
         timeline = new Timeline();
         //TODO add a preference or dropdown box for color choice
         timeline.setColor(timeline, makerboxblue);
-        timeline.setPreferredSize(new Dimension(1920,180));
-        JScrollPane scroller = new JScrollPane(timeline);
+        scroller = new JScrollPane(timeline);
         contentPane.add(scroller);
         scroller.setMinimumSize(new Dimension(256,256));
         scroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         scroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scroller.setPreferredSize(new Dimension(1920,180));
+        scroller.setAutoscrolls(true);
 
         // <place the edge of...>, <component_0>, <with padding>, <...against the edge of...>, <component_1>   
         spring.putConstraint(SpringLayout.HORIZONTAL_CENTER, camview, 0, SpringLayout.HORIZONTAL_CENTER, contentPane); 
@@ -185,62 +185,69 @@ public void run() {
 	t.start();
 }
 
-@Override
-public void actionPerformed(ActionEvent ae) {
-    String action = ae.getActionCommand();
-    if (action.equals("Snap")) {
-        //System.out.println("Button pressed.");
-        try {
-            counter++;
-            onion = null;
-        	String snapshot = String.format("%07d", counter) + ".png";
-            ImageIO.write(cam.getImage(), "PNG", 
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        String action = ae.getActionCommand();
+        if (action.equals("Snap")) {
+            try {
+                counter++;
+                onion = null;
+                String snapshot = String.format("%07d", counter) + ".png";
+                ImageIO.write(cam.getImage(), "PNG",
                         new File(this.dir_images + File.separator + snapshot));
-            onion = cam.getImage();
+                onion = cam.getImage();
 
-            timeline.appendFrame(timeline, snapshot);
-            timeline.revalidate(); timeline.repaint();
+                timeline.appendFrame(timeline, snapshot);
 
-            counter = timeline.getResume(dir_images);
-        } catch (IOException e) {
+                timeline.revalidate();
+                this.scrollOver();
+                timeline.repaint();
+
+                counter = timeline.getResume(dir_images);
+            } catch (IOException e) {
                 //TODO make this a popup window
-		System.out.println("You must create a project first.");
-		e.printStackTrace();
+                System.out.println("You must create a project first.");
+                e.printStackTrace();
             }
-    } else if (action.equals("New")) {
-        this.dir_images = CreateProject.main(action);
-        timeline.removeAll();
-        timeline.revalidate(); timeline.repaint();
-        counter = 0;
-    } else if (action.equals("Open")) {
-        counter=0;
-        this.dir_images = CreateProject.main(action);
-        // TODO do not restrict to only PNG
-        // get image numbers
-        timeline.removeAll();
-        timeline.pop(timeline, dir_images);
-        timeline.revalidate(); timeline.repaint();
-        counter = timeline.getResume(dir_images);
-    } else if (action.equals("Delete")) {
-        counter=0;
-        try {
-            Picture.trashSelected();
-        } catch (IOException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        } else if (action.equals("New")) {
+            this.dir_images = CreateProject.main(action);
+            timeline.removeAll();
+            timeline.revalidate();
+            timeline.repaint();
+            counter = 0;
+        } else if (action.equals("Open")) {
+            counter = 0;
+            this.dir_images = CreateProject.main(action);
+            // TODO do not restrict to only PNG
+            // get image numbers
+            timeline.removeAll();
+            timeline.pop(timeline, dir_images);
+
+            timeline.revalidate();
+            this.scrollOver();
+            timeline.repaint();
+            
+            counter = timeline.getResume(dir_images);
+        } else if (action.equals("Delete")) {
+            counter = 0;
+            try {
+                Picture.trashSelected();
+            } catch (IOException ex) {
+                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            timeline.removeAll();
+            timeline.pop(timeline, dir_images);
+            timeline.revalidate();
+            timeline.repaint();
+            counter = timeline.getResume(dir_images);
         }
-//        File fd = new File(Picture.selected);
-//        File trash = CreateProject.getTrash();        
-//        try {
-//            Files.move(Path.of(fd.getAbsolutePath()), Path.of(trash.getAbsolutePath(), fd.getName()), StandardCopyOption.REPLACE_EXISTING);
-//        } catch (IOException ex) {
-//            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        timeline.removeAll();
-        timeline.pop(timeline, dir_images);
-        timeline.revalidate(); timeline.repaint();
-        counter = timeline.getResume(dir_images);
     }
-}
+
+    public void scrollOver() {
+        SwingUtilities.invokeLater(() -> {
+            scroller.getHorizontalScrollBar().setValue(timeline.getFrameWidth()+scroller.getHorizontalScrollBar().getMaximum());
+        });
+    }
 
 @Override
 public void uncaughtException(Thread t, Throwable e) {
