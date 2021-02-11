@@ -210,11 +210,15 @@ public void actionPerformed(ActionEvent ae) {
             }
     } else if (action.equals("New")) {
         this.dir_images = CreateProject.main(action);
+        timeline.removeAll();
+        timeline.revalidate(); timeline.repaint();
+        counter = 0;
     } else if (action.equals("Open")) {
         counter=0;
         this.dir_images = CreateProject.main(action);
         // TODO do not restrict to only PNG
         // get image numbers
+        timeline.removeAll();
         timeline.pop(timeline, dir_images);
         timeline.revalidate(); timeline.repaint();
         counter = timeline.getResume(dir_images);

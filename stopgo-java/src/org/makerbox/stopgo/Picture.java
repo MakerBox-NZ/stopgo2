@@ -86,7 +86,7 @@ public class Picture extends JLabel implements MouseListener, ActionListener {
             this.selected = filename;
             System.out.println("DEBUG selected" + this.selected);
             this.setForeground(Color.red);
-            this.setText("🚫");
+            this.setText("Selected");
             //this.requestFocus();
             this.transferFocus();
             this.repaint();
