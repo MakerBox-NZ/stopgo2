@@ -1,6 +1,10 @@
 package org.makerbox.stopgo;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,7 +17,8 @@ import org.slf4j.LoggerFactory;
 public class CreateProject {
 
 	static File dir_images = null;
-        static int returnValue = 0;
+    private static File dir_trash = null;
+    static int returnValue = 0;
        
 	public static File main(String msg_operator) {
             Logger logger = LoggerFactory.getLogger(CreateProject.class);
@@ -53,7 +58,17 @@ public class CreateProject {
                 if (! CreateProject.dir_images.exists()) {
                     CreateProject.dir_images.mkdirs();
             }
+                
         }
+            dir_trash = new File(dir_images, "Trash");
+            if (!dir_trash.exists()) {
+                dir_trash.mkdirs();
+            }
+
             return dir_images;
+    }
+
+    public static File getTrash() {
+        return dir_trash; 
     }
 }

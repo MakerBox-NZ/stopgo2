@@ -31,6 +31,12 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import javax.swing.JMenu;
@@ -186,12 +192,12 @@ public void actionPerformed(ActionEvent ae) {
     if (action.equals("Snap")) {
         System.out.println("Button pressed.");
         try {
-                onion = null;
+            onion = null;
         	String snapshot = String.format("%07d", counter) + ".png";
-		ImageIO.write(cam.getImage(), "PNG", 
+            ImageIO.write(cam.getImage(), "PNG", 
                         new File(this.dir_images + File.separator + snapshot));
-		counter++;
-                onion = cam.getImage();
+            counter++;
+            onion = cam.getImage();
             } catch (IOException e) {
                 //TODO make this a popup window
 		System.out.println("You must create a project first.");
@@ -208,7 +214,15 @@ public void actionPerformed(ActionEvent ae) {
         timeline.revalidate(); timeline.repaint();
         counter = timeline.getResume(dir_images);
     } else if (action.equals("Delete")) {
-        System.out.println("Delete menu selected");
+        counter=0;
+        System.out.println(Picture.selected + " delete request");
+        File fd = new File(Picture.selected);
+        File trash = CreateProject.getTrash();        
+        try {
+            Files.move(Path.of(fd.getAbsolutePath()), Path.of(trash.getAbsolutePath(), fd.getName()), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
 
@@ -352,5 +366,9 @@ public void webcamGone(WebcamDiscoveryEvent event) {
     @Override
     public void keyReleased(KeyEvent e) {
         System.out.println("i felt that");
+    }
+
+    private void moveToTrash(File fd) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -20,7 +20,6 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
@@ -34,6 +33,7 @@ import javax.swing.border.Border;
 
 public class Picture extends JLabel implements MouseListener, ActionListener {
     private boolean isSelected;
+    public static String selected = null;
     private final String filename;
     /**
      * Creates thumbnail image to represent a film frame in the timeline.
@@ -83,12 +83,13 @@ public class Picture extends JLabel implements MouseListener, ActionListener {
         }
         
         if (this.isSelected) {
+            this.selected = filename;
+            System.out.println("DEBUG selected" + this.selected);
             this.setForeground(Color.red);
             this.setText("🚫");
             //this.requestFocus();
             this.transferFocus();
             this.repaint();
-            System.out.println(filename);
         } else {
             this.setForeground(Color.white);
             this.setText(filename.substring(filename.lastIndexOf(".") - 7));
