@@ -99,14 +99,26 @@ public class Timeline extends JPanel implements MouseListener { //TODO get rid o
      * @return largest_int: number assigned to latest image
      */
     public int getResume(File dir_images) {
-        File[] files;
-        files = listFiles(dir_images);
+        int counter;
+        File[] files = listFiles(dir_images);
         File lastfile = files[files.length-1];
         String largestnum = lastfile.getName().replaceAll("[^0-9]", "");
         int largest_int = Integer.parseInt(largestnum);
-        return largest_int;
+        
+        File dir_trash = CreateProject.getTrash();
+        File[] trashes = listFiles(dir_trash);
+        lastfile = trashes[trashes.length-1];
+        largestnum = lastfile.getName().replaceAll("[^0-9]", "");
+        int largest_trash = Integer.parseInt(largestnum);
+        
+            if ( largest_trash > largest_int ) {
+                counter = largest_trash;
+            } else {
+                counter = largest_int;
+            }
+        return counter;
     }
-   
+    
     public int getFrameWidth() { return wframe; }
     
     public static void setColor(Timeline timeline, Color c) {

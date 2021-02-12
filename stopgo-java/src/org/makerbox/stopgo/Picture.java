@@ -109,6 +109,10 @@ public class Picture extends JLabel implements MouseListener, ActionListener {
         return selectedList;
     }
     
+    public static int countSelected() {
+        return selectedList.size();
+    }
+    
     public static void trashSelected() throws IOException {
         File trash = CreateProject.getTrash();
         for (File f : selectedList) {

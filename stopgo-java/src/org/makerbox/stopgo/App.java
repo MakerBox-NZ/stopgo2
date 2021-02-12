@@ -229,7 +229,8 @@ public void run() {
             
             counter = timeline.getResume(dir_images);
         } else if (action.equals("Delete")) {
-            counter = 0;
+            counter = timeline.getResume(dir_images);
+                        
             try {
                 Picture.trashSelected();
             } catch (IOException ex) {
@@ -239,7 +240,6 @@ public void run() {
             timeline.pop(timeline, dir_images);
             timeline.revalidate();
             timeline.repaint();
-            counter = timeline.getResume(dir_images);
         }
     }
 
