@@ -23,5 +23,5 @@ sourceSets {
   }
 }
 application {
-  mainClassName("org.makerbox.stopgo.CamView")
+  mainClassName("org.makerbox.stopgo.App")
 }

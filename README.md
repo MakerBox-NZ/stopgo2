@@ -39,6 +39,14 @@ Read through the project code carefully to understand how StopGo works.
 Once you understand which class does what, and what each method provides, start making whatever improvements you feel are needed.
 When you've finished, submit a patch or merge request through Git or by email.
 
+### Gradle
+
+If you use Gradle and have it installed, generate the Gradle files:
+
+```
+$ gradle wrapper
+```
+
 ## Bugs
 
 If you find bugs in this software, file issues on either [Github](https://github.com/MakerBox-NZ/stopgo2) or [Gitlab](https://gitlab.com/makerbox/stopgo2).
