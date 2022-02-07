@@ -70,3 +70,4 @@ local.properties
 .scala_dependencies
 .worksheet
 /stopgo-java/.gradle/
+/target/
