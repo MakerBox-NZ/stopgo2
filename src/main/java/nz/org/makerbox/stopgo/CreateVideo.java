@@ -1,67 +1,52 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+ * Copyright (C) 2020 Seth Kenlon
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package nz.org.makerbox.stopgo;
 
-import com.xuggle.mediatool.IMediaViewer;
-import com.xuggle.mediatool.IMediaWriter;
-import com.xuggle.mediatool.ToolFactory;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-
-import static com.xuggle.xuggler.Global.DEFAULT_TIME_UNIT;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import javax.imageio.ImageIO;
 import static nz.org.makerbox.stopgo.CreateProject.dir_images;
+import org.apache.commons.io.FileUtils;
+import org.jcodec.api.awt.AWTSequenceEncoder;
 
  /**
  *
  * @author Seth Kenlon
  */
 public class CreateVideo {
-    public static void main() {
-        // frame being recorded
-        long nextFrameTime=0;
-        // video parameters
-        final int videoStreamIndex = 0;
-        final int videoStreamId = 0;
-        final long frameRate = DEFAULT_TIME_UNIT.convert(500,MILLISECONDS);
-        final int width = 720;
-        final int height = 1280;
-        // audio parameters
-        final int audioStreamIndex = 1;
-        final int audioStreamId = 0;
-        final int channelCount = 1;
-        final int sampleRate = 44100; // Hz
-        final int sampleCount = 1000;
+    public static void encode() throws FileNotFoundException, IOException {
+        File output = new File(dir_images + "/Video/" + "movie.mp4");
+        AWTSequenceEncoder enc = AWTSequenceEncoder.create24Fps(output);
+
+        String[] ext = new String[] { "png" };
+        List<File> file_list = (List<File>) FileUtils.listFiles(dir_images, ext, false);
+        Collections.sort(file_list);
         
-        try {
-            final IMediaWriter writer = ToolFactory.makeWriter("stopgo.mp4");
-            writer.addListener(ToolFactory.makeViewer(
-                    IMediaViewer.Mode.VIDEO_ONLY, true,
-                    javax.swing.WindowConstants.EXIT_ON_CLOSE));
-            
-            writer.addVideoStream(videoStreamIndex, videoStreamId, width, height);
-            //writer.addAudioStream(audioStreamIndex, audioStreamId, channelCount, sampleRate);
-            
-            for (File f : dir_images.listFiles()) {
-                BufferedImage frame = ImageIO.read(f);
-                writer.encodeVideo(videoStreamIndex, frame, nextFrameTime, DEFAULT_TIME_UNIT);
-                nextFrameTime += frameRate;
-                
-                /* audio 
-                short[] samples = new short[];
-                writer.encodeAudio(audioStreamIndex, samples, clock, DEFAULT_TIME_UNIT);
-                totalSampleCount += sampleCount;
-                */
-            }
-            
-            writer.close();         
-        } catch (IOException e) {
+        // iterate through each item in collection
+        for (Iterator<File> iterator = file_list.iterator(); iterator.hasNext();) {
+            //System.out.println("processing: " + iterator.next());
+            BufferedImage bi = ImageIO.read(iterator.next());
+            enc.encodeImage(bi);
         }
+        enc.finish();
     }
 }

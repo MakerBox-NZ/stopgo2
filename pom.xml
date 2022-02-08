@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nz.org.makerbox</groupId>
-    <artifactId>stopgo-maven</artifactId>
+    <artifactId>stopgo-java</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
     <properties>
@@ -10,13 +10,6 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
-    <repositories>
-        <repository>
-            <id>dcm4che</id>
-            <name>dcm4che</name>
-            <url>https://www.dcm4che.org/maven2/</url>
-        </repository>
-    </repositories>
     
     <dependencies>
         <dependency>
@@ -25,9 +18,22 @@
             <version>0.3.12</version>
         </dependency>
         <dependency>
-            <groupId>xuggle</groupId>
-            <artifactId>xuggle-xuggler</artifactId>
-            <version>5.4</version>
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec</artifactId>
+            <version>0.2.5</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec-javase</artifactId>
+            <version>0.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
+    <name>stopgo-java</name>
 </project>
