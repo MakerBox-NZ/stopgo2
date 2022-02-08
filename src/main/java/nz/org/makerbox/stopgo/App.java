@@ -41,6 +41,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpringLayout;
+import nz.org.makerbox.stopgo.CreateVideo;
 
 /**
  * @author Seth Kenlon
@@ -243,6 +244,8 @@ public void run() {
             timeline.pop(timeline, dir_images);
             timeline.revalidate();
             timeline.repaint();
+        } else if (action.equals("Export")) {
+            CreateVideo.main();
         }
     }
 

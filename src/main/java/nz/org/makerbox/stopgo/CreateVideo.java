@@ -23,7 +23,7 @@ import static nz.org.makerbox.stopgo.CreateProject.dir_images;
  * @author Seth Kenlon
  */
 public class CreateVideo {
-    public static void main(String[] args) {
+    public static void main() {
         // frame being recorded
         long nextFrameTime=0;
         // video parameters

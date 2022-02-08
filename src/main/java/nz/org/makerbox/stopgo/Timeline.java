@@ -26,7 +26,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import jdk.nashorn.api.tree.BreakTree;
 import static nz.org.makerbox.stopgo.CreateProject.dir_images;
 
 /**
