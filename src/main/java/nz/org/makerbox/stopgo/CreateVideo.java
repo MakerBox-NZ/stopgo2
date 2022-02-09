@@ -18,35 +18,101 @@ package nz.org.makerbox.stopgo;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Collections;
+import java.awt.GridLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Iterator;
-import java.util.List;
 import javax.imageio.ImageIO;
 import static nz.org.makerbox.stopgo.CreateProject.dir_images;
 import org.apache.commons.io.FileUtils;
 import org.jcodec.api.awt.AWTSequenceEncoder;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingWorker;
+import java.awt.EventQueue;
+import java.util.List;
 
- /**
- *
- * @author Seth Kenlon
- */
-public class CreateVideo {
-    public static void encode() throws FileNotFoundException, IOException {
-        File output = new File(dir_images + "/Video/" + "movie.mp4");
-        AWTSequenceEncoder enc = AWTSequenceEncoder.create24Fps(output);
+public class CreateVideo extends JFrame {
 
-        String[] ext = new String[] { "png" };
-        List<File> file_list = (List<File>) FileUtils.listFiles(dir_images, ext, false);
-        Collections.sort(file_list);
+    private static final String START = "0%";
+    private final JProgressBar progressBar = new JProgressBar(0, 100);
+    private final JLabel label = new JLabel(START, JLabel.CENTER);
+
+    public CreateVideo() {
+        this.setLayout(new GridLayout(0, 1));
+        this.setTitle("Exporting images as movie");
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.add(progressBar);
+        this.add(label);
+        this.setSize(161, 100);
+        this.setLocationRelativeTo(getParent());
+        this.setVisible(true);
+    }
+
+    public void runCalc() {
+        progressBar.setIndeterminate(true);
+        EncodeVideo task = new EncodeVideo();
+        task.addPropertyChangeListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent e) {
+                if ("progress".equals(e.getPropertyName())) {
+                    progressBar.setIndeterminate(false);
+                    progressBar.setValue((Integer) e.getNewValue());
+                }
+            }
+        });
+        task.execute();
+    }
+
+    private class EncodeVideo extends SwingWorker<Integer, Integer> {
+        private int count;
         
-        // iterate through each item in collection
-        for (Iterator<File> iterator = file_list.iterator(); iterator.hasNext();) {
-            //System.out.println("processing: " + iterator.next());
-            BufferedImage bi = ImageIO.read(iterator.next());
-            enc.encodeImage(bi);
+        @Override
+        protected Integer doInBackground() throws Exception {
+            count = 0;
+            String[] ext = new String[] { "png" };
+            List<File> file_list = (List<File>) FileUtils.listFiles(dir_images, ext, false);
+            progressBar.setMaximum(file_list.size());
+            
+            File output = new File(dir_images + "/Video/" + "movie.mp4");
+            AWTSequenceEncoder enc = AWTSequenceEncoder.create24Fps(output);
+            Collections.sort(file_list);
+            count = 1;
+            // iterate through each item in collection
+            for (Iterator<File> iterator = file_list.iterator(); iterator.hasNext();) {
+                BufferedImage bi = ImageIO.read(iterator.next());
+                enc.encodeImage(bi);
+                publish(count); //send updates to process method
+                count++;
         }
         enc.finish();
+        return 0;
+    }
+
+        @Override
+        protected void process(List<Integer> chunks) {
+            for (int i : chunks) {
+                setProgress(i);
+                //System.out.println("count: " + i + " of " + Integer.toString(progressBar.getMaximum()));
+                System.out.println("published: " + Integer.toString(progressBar.getValue()));
+                label.setText(Integer.toString(i));
+                if (i >= progressBar.getMaximum() ) {
+                    label.setText("Saved to " + dir_images + "/Video");
+                } 
+            }
+        }
+    }
+
+    public static void main() {
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                CreateVideo t = new CreateVideo();
+                t.runCalc();
+            }
+        });      
     }
 }

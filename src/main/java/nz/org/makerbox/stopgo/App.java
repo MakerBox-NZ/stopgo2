@@ -47,6 +47,7 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -260,8 +261,8 @@ public void run() {
             timeline.revalidate();
             timeline.repaint();
         } else if (action.equals("Export")) {
-            CreateVideo.encode();
-        }
+                     CreateVideo.main();
+         }
     }
 
     public void scrollOver() {
