@@ -26,13 +26,28 @@ If you are a Java coder, or you're learning Java, then you can help us improve S
 To contribute code:
 
 * Download and install [NetBeans](https://netbeans.apache.org/). It's also free and open source and works on all platforms.
-* Download and install [Maven](https://maven.apache.org/) so NetBeans can manage dependencies.
+* Download and install [Maven](https://maven.apache.org/) so NetBeans can manage dependencies and build a Stopgo package.
 * Download the Stopgo source code by cloning this Git repository.
 
 Read through the project code carefully to understand how StopGo works.
 Once you understand which class does what, and what each method provides, start making whatever improvements you feel are needed.
 
 When you've finished, submit a patch or merge request through Git or by email.
+
+## Build
+
+To build this project from source code, use Maven:
+
+```bash
+$ mvn clean package
+```
+
+Builds are saved to an auto-generated `targets` directory.
+Run it using this Java command (replacing `X.Y` with the actual version number):
+
+```bash
+$ java -jar targets/Stopgo-X.Y.jar
+```
 
 ## Bugs
 
