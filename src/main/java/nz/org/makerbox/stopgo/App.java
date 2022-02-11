@@ -16,6 +16,7 @@
 */
 package nz.org.makerbox.stopgo;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -57,6 +58,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpringLayout;
+import javax.swing.UIManager;
 
 /**
  * @author Seth Kenlon
@@ -80,6 +82,11 @@ public class App extends JFrame implements Runnable, WebcamListener,
     
     @Override
     public void run() {
+        try {
+            UIManager.setLookAndFeel( new FlatLightLaf() );
+        } catch( Exception ex ) {
+            System.err.println( "Failed to initialize theme. Using fallback." );
+        }
     	this.setTitle("Stopgo");
     	this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setPreferredSize(new Dimension(960,800));
