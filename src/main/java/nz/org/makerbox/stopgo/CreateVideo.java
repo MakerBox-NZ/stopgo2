@@ -69,10 +69,10 @@ public class CreateVideo extends JFrame {
 
     private class EncodeVideo extends SwingWorker<Integer, Integer> {
         private int count;
-        
+        private int incr;
+
         @Override
         protected Integer doInBackground() throws Exception {
-            count = 0;
             String[] ext = new String[] { "png" };
             List<File> file_list = (List<File>) FileUtils.listFiles(dir_images, ext, false);
             progressBar.setMaximum(file_list.size());
@@ -80,16 +80,21 @@ public class CreateVideo extends JFrame {
             File output = new File(dir_images + "/Video/" + "movie.mp4");
             AWTSequenceEncoder enc = AWTSequenceEncoder.create24Fps(output);
             Collections.sort(file_list);
-            count = 1;
+            
+            count = 0;
             // iterate through each item in collection
-            for (Iterator<File> iterator = file_list.iterator(); iterator.hasNext();) {
-                BufferedImage bi = ImageIO.read(iterator.next());
+            for (Iterator<File> i = file_list.iterator(); i.hasNext();) {
+                BufferedImage bi = ImageIO.read(i.next());
                 enc.encodeImage(bi);
-                publish(count); //send updates to process method
+                incr = (int)((count / (float) file_list.size() ) * 100);
+                publish(incr); //send updates to process method
                 count++;
-        }
-        enc.finish();
-        return 0;
+            }
+            enc.finish();
+            incr = 100;
+            setProgress(incr);
+            publish(incr);
+            return 0;
     }
 
         @Override
@@ -97,11 +102,7 @@ public class CreateVideo extends JFrame {
             for (int i : chunks) {
                 setProgress(i);
                 //System.out.println("count: " + i + " of " + Integer.toString(progressBar.getMaximum()));
-                System.out.println("published: " + Integer.toString(progressBar.getValue()));
-                label.setText(Integer.toString(i));
-                if (i >= progressBar.getMaximum() ) {
-                    label.setText("Saved to " + dir_images + "/Video");
-                } 
+                    label.setText(Integer.toString(i) +"%");
             }
         }
     }
